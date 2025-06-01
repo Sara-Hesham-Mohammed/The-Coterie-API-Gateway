@@ -1,7 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
-import { createProxyMiddleware, pkg } from 'http-proxy-middleware';
-const { Filter, Options, RequestHandler } = pkg;
+import { createProxyMiddleware } from 'http-proxy-middleware';
 
 
 // App setup
@@ -22,17 +21,20 @@ const setProxy = (portNum)=>{
 //DATABASE PROXY
 const databaseProxy = setProxy(3001);
 //EXTERNAL API PROXY
-const externalAPIsProxy = setProxy(3002);
+const eventsAPIProxy = setProxy(3002);
 //GraphRec API PROXY
-const graphRecAPIProxy = setProxy(8000);
+const recSysAPIProxy = setProxy(8000);
 //Embeddings and Clustering API PROXY
-const embedClusterAPIProxy = setProxy(8080);
+const clusterAPIProxy = setProxy(8080);
+//Embeddings and Clustering API PROXY
+const embedAPIProxy = setProxy(5000);
 
 //these are the main (BASE) endpoints, anything extra should be in their OWN files NOT HERE 
 app.use('/database', databaseProxy); 
-app.use('/graphRec', graphRecAPIProxy); 
-app.use('/externalAPIs', externalAPIsProxy); 
-app.use('/embedClusterAPIProxy', embedClusterAPIProxy); 
+app.use('/recommendations', recSysAPIProxy); 
+app.use('/events', eventsAPIProxy); 
+app.use('/cluster', clusterAPIProxy); 
+app.use('/embed', embedAPIProxy); 
 
 
 
