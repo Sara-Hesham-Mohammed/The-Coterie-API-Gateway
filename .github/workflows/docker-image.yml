@@ -1,4 +1,4 @@
-name: Docker RecEngine Image CI
+name: Docker Gateway Image CI
 
 on:
   push:
@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       IMAGE_NAME: gateway-image
-      IMAGE_TAG: ${{ github.run_number }} # or use `IMAGE_TAG: latest` if you want
+      IMAGE_TAG: ${{ github.run_number }} 
     steps:
       - uses: actions/checkout@v4
 
