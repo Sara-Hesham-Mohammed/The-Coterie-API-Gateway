@@ -46,7 +46,7 @@ jobs:
         password: ${{ secrets.SSH_PASSWORD }}
         port: ${{ secrets.SSH_PORT }}
         script: |
-          sudo docker rm -f $(sudo docker ps -aq -f name=gateway-container) || true
-          sudo docker rmi $(sudo docker images -q "${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG") || true
+          sudo docker rm -f gateway-container || true
+          sudo docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG || true
           sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG
           sudo docker run --name gateway-container -p 3000:80 --restart=always -d ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG
