@@ -40,6 +40,14 @@ app.use("/", async (req, res) => {
   
 });
 
+app.use("/TEST", async (req, res) => {
+ console.log(`[${new Date().toISOString()}] TEST endpoint hit - Method: ${req.method}, IP: ${req.ip}`);
+ res.json({ 
+   message: "TEST endpoint working", 
+   timestamp: new Date().toISOString(),
+   method: req.method 
+ });
+});
 /***********************/
 app.listen(PORT, async () => {
   console.log(`API GATEWAY Listening on port ${PORT}`);
