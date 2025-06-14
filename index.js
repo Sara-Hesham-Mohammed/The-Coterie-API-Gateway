@@ -1,23 +1,21 @@
 import express from "express";
 import dotenv from "dotenv";
-import { createProxyMiddleware } from 'http-proxy-middleware';
-
+import { createProxyMiddleware } from "http-proxy-middleware";
 
 // App setup
 const app = express();
 dotenv.config({
-    path: "./config/.env"
+  path: "./config/.env",
 });
 const PORT = process.env.PORT;
 
 /********** PROXY SET UP *************/
-const setProxy = (portNum)=>{
-    return createProxyMiddleware({
-        target: `http://localhost:${portNum}/`, // target host with the same base path
-        changeOrigin: true, // needed for virtual hosted sites
-      });
-    
-}
+const setProxy = (portNum) => {
+  return createProxyMiddleware({
+    target: `http://localhost:${portNum}/`, // target host with the same base path
+    changeOrigin: true, // needed for virtual hosted sites
+  });
+};
 //DATABASE PROXY
 const databaseProxy = setProxy(3001);
 //EXTERNAL API PROXY
@@ -29,27 +27,32 @@ const clusterAPIProxy = setProxy(8080);
 //Embeddings and Clustering API PROXY
 const embedAPIProxy = setProxy(5000);
 
-//these are the main (BASE) endpoints, anything extra should be in their OWN files NOT HERE 
-app.use('/database', databaseProxy); 
-app.use('/recommendations', recSysAPIProxy); 
-app.use('/events', eventsAPIProxy); 
-app.use('/cluster', clusterAPIProxy); 
-app.use('/embed', embedAPIProxy); 
+//these are the main (BASE) endpoints, anything extra should be in their OWN files NOT HERE
+app.use("/database", databaseProxy);
+app.use("/recommendations", recSysAPIProxy);
+app.use("/events", eventsAPIProxy);
+app.use("/cluster", clusterAPIProxy);
+app.use("/embed", embedAPIProxy);
 
-
+//for testing purposes, this endpoint simulates a 30-second async task
+app.use("/", async (req, res) => {
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  console.log("Received request, simulating 30-second async task...");
+  await delay(30000); // wait 30 seconds
+  return res.status(200).json({ message: "Response after 30 seconds" });
+});
 
 /***********************/
 app.listen(PORT, async () => {
-    console.log(`API GATEWAY Listening on port ${PORT}`);
+  console.log(`API GATEWAY Listening on port ${PORT}`);
 });
-
 
 // App failsafes? ig
 app.use((req, res, next) => {
-    console.log("Request received");
-    next(); 
+  console.log("Request received");
+  next();
 });
 app.use((err, req, res, next) => {
-    console.error("Error:", err);
-    res.status(500).json({ error: "Internal Server Error" });
+  console.error("Error:", err);
+  res.status(500).json({ error: "Internal Server Error" });
 });
