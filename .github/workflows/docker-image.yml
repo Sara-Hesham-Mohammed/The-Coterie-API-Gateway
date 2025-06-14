@@ -56,19 +56,79 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           port: ${{ secrets.SSH_PORT }}
           script: |
+            # Check if docker is accessible
+            if ! docker info > /dev/null 2>&1; then
+              echo "❌ Docker permission denied. Please add user to docker group:"
+              echo "sudo usermod -aG docker $USER"
+              echo "Then log out and back in"
+              exit 1
+            fi
+            
             # Pull the latest image
+            echo "🔄 Pulling image..."
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
             
-            # Stop and remove existing container
-            docker stop gateway-container || true
-            docker rm gateway-container || true
+            # Stop existing container (if exists)
+            if docker ps -q -f name=gateway-container | grep -q .; then
+              echo "🛑 Stopping existing container..."
+              docker stop gateway-container
+            fi
+            
+            # Remove existing container (if exists)  
+            if docker ps -aq -f name=gateway-container | grep -q .; then
+              echo "🗑️ Removing existing container..."
+              docker rm gateway-container
+            fi
             
             # Run new container
+            echo "🚀 Starting new container..."
             docker run -d \
               --name gateway-container \
               --restart unless-stopped \
               -p 3000:80 \
               ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
             
+            # Verify container is running
+            if docker ps | grep -q gateway-container; then
+              echo "✅ Container started successfully"
+            else
+              echo "❌ Container failed to start"
+              docker logs gateway-container
+              exit 1
+            fi
+            
             # Clean up old images (keep last 3 versions)
-            docker images ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }} --format "table {{.Repository}}:{{.Tag}}\t{{.ID}}" | tail -n +4 | awk '{print $2}' | xargs -r docker rmi || true
+            echo "🧹 Cleaning up old images..."
+            docker images ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }} --format "{{.ID}} {{.Tag}}" | tail -n +4 | awk '{print $1}' | xargs -r docker rmi || echo "No old images to remove"
+
+      - name: Health check
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            # Wait for container to start
+            sleep 10
+            
+            # Check if container is running
+            if docker ps | grep -q gateway-container; then
+              echo "✅ Container is running"
+            else
+              echo "❌ Container is not running"
+              exit 1
+            fi
+            
+            # Test HTTP response (adjust URL/port as needed)
+            for i in {1..5}; do
+              if curl -f http://localhost:3000 > /dev/null 2>&1; then
+                echo "✅ Application is responding"
+                exit 0
+              fi
+              echo "Attempt $i failed, retrying in 5 seconds..."
+              sleep 5
+            done
+            
+            echo "❌ Application health check failed"
+            exit 1
