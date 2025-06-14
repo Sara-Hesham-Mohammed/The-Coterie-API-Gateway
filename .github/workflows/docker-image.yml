@@ -40,9 +40,9 @@ jobs:
         password: ${{ secrets.SSH_PASSWORD }}
         port: ${{ secrets.SSH_PORT }}
         script: |
-          docker rm -f $(docker ps -aq -f name=gateway-container)
-          docker rmi $(docker images | grep "${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG"  | awk '{print $3}')
-          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG
-          docker run --name gateway-container -p 3000:80 --restart=always -d ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG
+          sudo docker rm -f $(docker ps -aq -f name=gateway-container)
+          sudo docker rmi $(docker images | grep "${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG"  | awk '{print $3}')
+          sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG
+          sudo docker run --name gateway-container -p 3000:80 --restart=always -d ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG
 
 
