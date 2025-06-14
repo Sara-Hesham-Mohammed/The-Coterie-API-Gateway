@@ -35,7 +35,7 @@ app.use("/cluster", clusterAPIProxy);
 app.use("/embed", embedAPIProxy);
 
 //for testing purposes, this endpoint simulates a 30-second async task
-app.use("/", async (req, res) => {
+app.use("/", async (req, res,next) => {
   console.log("IN EL BTA3");
   next();
 });
