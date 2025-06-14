@@ -53,4 +53,4 @@ jobs:
           sudo docker rm -f gateway-container || true
           sudo docker rmi $DOCKER_USER/$IMAGE_NAME:$IMAGE_TAG || true
           sudo docker pull $DOCKER_USER/$IMAGE_NAME:$IMAGE_TAG
-          sudo docker run --name gateway-container --env-file ./config/.env -p 3000:3000 --restart=always -d $DOCKER_USER/$IMAGE_NAME:$IMAGE_TAG
+          sudo docker run --name gateway-container --env-file config/.env -p 3000:3000 --restart=always -d $DOCKER_USER/$IMAGE_NAME:$IMAGE_TAG
