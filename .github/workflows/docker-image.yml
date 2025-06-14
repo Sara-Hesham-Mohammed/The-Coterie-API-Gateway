@@ -11,7 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     env:
       IMAGE_NAME: gateway-image
-      IMAGE_TAG: ${{ github.run_number }} 
+      IMAGE_TAG: ${{ github.run_number }}
+    outputs:
+      image_name: ${{ env.IMAGE_NAME }}
+      image_tag: ${{ env.IMAGE_TAG }}
     steps:
       - uses: actions/checkout@v4
 
@@ -27,10 +30,13 @@ jobs:
 
       - name: Push to Docker Hub
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG
-  
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: ${{ needs.build.outputs.image_name }}
+      IMAGE_TAG: ${{ needs.build.outputs.image_tag }}
     steps:
     - name: executing remote ssh commands using password
       uses: appleboy/ssh-action@master
@@ -40,9 +46,7 @@ jobs:
         password: ${{ secrets.SSH_PASSWORD }}
         port: ${{ secrets.SSH_PORT }}
         script: |
-          sudo docker rm -f $(docker ps -aq -f name=gateway-container)
-          sudo docker rmi $(docker images | grep "${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG"  | awk '{print $3}')
+          sudo docker rm -f $(sudo docker ps -aq -f name=gateway-container) || true
+          sudo docker rmi $(sudo docker images -q "${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG") || true
           sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG
           sudo docker run --name gateway-container -p 3000:80 --restart=always -d ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG
-
-
