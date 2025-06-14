@@ -37,19 +37,25 @@ app.use("/embed", embedAPIProxy);
 //for testing purposes, this endpoint simulates a 30-second async task
 app.use("/", async (req, res) => {
   console.log("IN EL BTA3");
-  
+  next();
 });
 
 app.use("/TEST", async (req, res) => {
- console.log(`[${new Date().toISOString()}] TEST endpoint hit - Method: ${req.method}, IP: ${req.ip}`);
- res.json({ 
-   message: "TEST endpoint working", 
-   timestamp: new Date().toISOString(),
-   method: req.method 
- });
+  console.log(
+    `[${new Date().toISOString()}] TEST endpoint hit - Method: ${
+      req.method
+    }, IP: ${req.ip}`
+  );
+  console.log("About to send JSON response..."); // New log
+  res.json({
+    message: "TEST endpoint working",
+    timestamp: new Date().toISOString(),
+    method: req.method,
+  });
+  console.log("JSON response sent (or attempted)..."); // New log
 });
 /***********************/
-app.listen(PORT,'0.0.0.0', async () => {
+app.listen(PORT, "0.0.0.0", async () => {
   console.log(`API GATEWAY Listening on port ${PORT}`);
 });
 
