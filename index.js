@@ -36,10 +36,8 @@ app.use("/embed", embedAPIProxy);
 
 //for testing purposes, this endpoint simulates a 30-second async task
 app.use("/", async (req, res) => {
-  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-  console.log("Received request, simulating 30-second async task...");
-  await delay(30000); // wait 30 seconds
-  return res.status(200).json({ message: "Response after 30 seconds" });
+  console.log("IN EL BTA3");
+  
 });
 
 /***********************/

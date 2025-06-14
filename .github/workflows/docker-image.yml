@@ -35,7 +35,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     env:
-      IMAGE_NAME: ${{ needs.build.outputs.image_name }}
+      IMAGE_NAME: gateway-image
       IMAGE_TAG: ${{ needs.build.outputs.image_tag }}
     steps:
     - name: executing remote ssh commands using password
@@ -46,7 +46,11 @@ jobs:
         password: ${{ secrets.SSH_PASSWORD }}
         port: ${{ secrets.SSH_PORT }}
         script: |
+          IMAGE_NAME=gateway-image
+          IMAGE_TAG=${{ github.run_number }}
+          DOCKER_USER=${{ secrets.DOCKERHUB_USERNAME }}
+
           sudo docker rm -f gateway-container || true
-          sudo docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG || true
-          sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG
-          sudo docker run --name gateway-container -p 3000:3000 --restart=always -d ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG
+          sudo docker rmi $DOCKER_USER/$IMAGE_NAME:$IMAGE_TAG || true
+          sudo docker pull $DOCKER_USER/$IMAGE_NAME:$IMAGE_TAG
+          sudo docker run --name gateway-container -p 3000:3000 --restart=always -d $DOCKER_USER/$IMAGE_NAME:$IMAGE_TAG
