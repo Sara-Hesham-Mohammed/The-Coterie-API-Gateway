@@ -12,7 +12,7 @@ const PORT = process.env.PORT;
 /********** PROXY SET UP *************/
 const setProxy = (portNum) => {
   return createProxyMiddleware({
-    target: `http://localhost:${portNum}/`, // target host with the same base path
+    target: `http://'0.0.0.0':${portNum}/`, // target host with the same base path
     changeOrigin: true, // needed for virtual hosted sites
   });
 };
