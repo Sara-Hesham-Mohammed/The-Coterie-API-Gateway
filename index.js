@@ -25,7 +25,7 @@ const setProxy = (portNum) => {
   });
 };
 
-// PROXIES
+// all PROXIES
 const databaseProxy = setProxy(3001);
 const eventsAPIProxy = setProxy(3002);
 const recSysAPIProxy = setProxy(8000);
