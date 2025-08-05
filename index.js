@@ -6,15 +6,22 @@ import { createProxyMiddleware } from "http-proxy-middleware";
 dotenv.config({
   path: "./config/.env",
 });
-const PORT = process.env.PORT || 8081; // Fallback port if .env is missing
+const PORT = process.env.PORT || 3000; // Fallback port if .env is missing
 
 // App setup
 const app = express();
 
 /********** PROXY SET UP *************/
-const setProxy = (portNum) => {
+const setProxy = (host, portNum) => {
+  let url_target;
+  if(host){
+    url_target = `http://${host}:${portNum}`;
+  }else{
+    url_target = `http://localhost:${portNum}`;
+
+  }
   return createProxyMiddleware({
-    target: `http://localhost:${portNum}`, // Prefer localhost over 0.0.0.0
+    target: url_target, // Prefer localhost over 0.0.0.0
     changeOrigin: true,
     ws: true, // support websockets
     logLevel: "debug", // helpful for debugging
@@ -26,11 +33,11 @@ const setProxy = (portNum) => {
 };
 
 // all PROXIES
-const databaseProxy = setProxy(3001);
-const eventsAPIProxy = setProxy(3002);
-const recSysAPIProxy = setProxy(8000);
-const clusterAPIProxy = setProxy(8080);
-const embedAPIProxy = setProxy(5000);
+const databaseProxy = setProxy('db-api-container',3001);
+const eventsAPIProxy = setProxy('events-api-container',3002);
+const recSysAPIProxy = setProxy('rec-engine-container',8000);
+const clusterAPIProxy = setProxy('clustering-container',8080);
+const embedAPIProxy = setProxy('embeddings-container',5000);
 
 // Proxy endpoints
 app.use("/database", databaseProxy);
